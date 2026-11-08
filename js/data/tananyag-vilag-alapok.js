@@ -97,14 +97,15 @@
     attekintes: R`<p class="lead">Az erő, a sebesség, a gyorsulás vektor: nagysága és iránya is van. A legtöbb feladat úgy oldható meg, hogy a vektorokat egymásra merőleges összetevőkre bontjuk.</p>`,
     elmelet: R`<div class="prose">
 <h3>Felbontás</h3><p>Egy $F$ nagyságú, a vízszintessel $\alpha$ szöget bezáró vektor összetevői: $F_x = F\cos\alpha$, $F_y = F\sin\alpha$. Vissza: $F = \sqrt{F_x^2 + F_y^2}$, $\tan\alpha = F_y/F_x$.</p>
-<h3>Összegzés</h3><p>Komponensenként: $\vec R = (\sum F_x, \sum F_y)$. Két vektor esetén koszinusztétellel: $R^2 = F_1^2 + F_2^2 + 2F_1F_2\cos\gamma$ ($\gamma$ a vektorok által bezárt szög).</p>
+<h3>Összegzés</h3><p>Komponensenként: $\vec R = (\sum F_x, \sum F_y)$. Két vektor esetén koszinusztétellel: $R^2 = F_1^2 + F_2^2 + 2F_1F_2\cos\varphi$, ahol $\varphi$ a két vektor által <b>közös kezdőpontból mérve</b> bezárt szög (0° = azonos irány, az eredő a legnagyobb; 180° = ellentétes irány; 90° = Pitagorasz).</p>
+<p><b>Miért plusz, és mikor mínusz?</b> A háromszög-szerkesztésnél a második vektort az első <i>végéhez</i> toljuk. Ekkor a háromszög belső szöge $\gamma = 180° - \varphi$, és a hagyományos koszinusztétel $R^2 = F_1^2 + F_2^2 - 2F_1F_2\cos\gamma$. Mivel $\cos(180° - \varphi) = -\cos\varphi$, a két alak ugyanaz: a mínusz a háromszög belső szögéhez tartozik, a plusz a vektorok szögéhez. Feladatban mindig az a kérdés, melyik szöget adták meg.</p>
 <h3>Hasznos értékek</h3><table class="data"><thead><tr><th></th><th>0°</th><th>30°</th><th>45°</th><th>60°</th><th>90°</th></tr></thead><tbody><tr><td>sin</td><td>0</td><td>0,5</td><td>0,707</td><td>0,866</td><td>1</td></tr><tr><td>cos</td><td>1</td><td>0,866</td><td>0,707</td><td>0,5</td><td>0</td></tr></tbody></table>
 <p>Kis szögekre (radiánban): $\sin x \approx \tan x \approx x$. Számológép: fok (DEG) vagy radián (RAD) mód!</p></div>`,
     hibak: [["Szögmód", "Fokban adott szögnél DEG mód; $\\omega t$ számolásnál RAD."], ["Merőleges vektorok", "Eredő: Pitagorasz – nem egyszerű összeg."]],
     feladatok: [
       { id: "vek-01", szint: 1, tipus: "mc", pont: 1, cim: "Merőleges erők", szoveg: R`Egy testre 3 N és 4 N nagyságú, egymásra merőleges erő hat. Mekkora az eredő?`, opciok: ["1 N", "5 N", "7 N", "12 N"], helyes: 1, tippek: ["Pitagorasz"], megoldas: R`$\sqrt{9 + 16} = 5\ \mathrm N$.` },
       { id: "vek-02", szint: 2, tipus: "num", pont: 1, cim: "Vízszintes összetevő", szoveg: R`Mekkora a vízszintessel 30°-ot bezáró 10 N-os erő vízszintes összetevője?`, valasz: 8.66, egyseg: "N", tol: 0.01, tippek: ["$F\\cos\\alpha$"], megoldas: R`$10\cos30° \approx 8{,}66\ \mathrm N$.` },
-      { id: "vek-03", szint: 3, tipus: "num", pont: 2, cim: "Két erő eredője", szoveg: R`Mekkora a 6 N és 8 N nagyságú, egymással 60°-os szöget bezáró erők eredője?`, valasz: 12.166, egyseg: "N", tol: 0.01, tippek: ["$R^2 = F_1^2 + F_2^2 + 2F_1F_2\\cos\\gamma$"], megoldas: R`$R = \sqrt{36 + 64 + 48} \approx 12{,}2\ \mathrm N$.` },
+      { id: "vek-03", szint: 3, tipus: "num", pont: 2, cim: "Két erő eredője", szoveg: R`Mekkora a 6 N és 8 N nagyságú, egymással 60°-os szöget bezáró erők eredője?`, valasz: 12.166, egyseg: "N", tol: 0.01, tippek: ["$R^2 = F_1^2 + F_2^2 + 2F_1F_2\\cos\\varphi$ (φ: a vektorok szöge)"], megoldas: R`$R = \sqrt{36 + 64 + 48} \approx 12{,}2\ \mathrm N$.` },
     ],
   });
 
