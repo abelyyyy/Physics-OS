@@ -68,7 +68,7 @@
     const side = h("aside.sidebar",
       h("div.brand", { html: logo + '<div><div class="brand-name">PHYSICS OS</div><div class="brand-sub">A fizika teljes univerzuma</div></div>' }),
       searchBtn(), nav,
-      h("div.sidebar-foot", "Kész · 7 témakör, 37 alfejezet", h("br"), "Emelt szintű fizikaérettségi"));
+      h("div.sidebar-foot", "Emelt szintű fizikaérettségi"));
     const top = h("div.mobile-top", { html: logo + '<span class="brand-name">PHYSICS OS</span>' });
     top.append(searchBtn());
     const main = h("main.main", { id: "main", tabindex: "-1" });

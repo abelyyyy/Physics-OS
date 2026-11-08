@@ -31,7 +31,6 @@
     PO.formulas.forEach((f) => items.push({ kind: "Képlet", title: f.nev, sub: `${(PO.subInfo[f.temakor] || {}).temaNev || ""} · ${f.fejezet}`, href: "#keplet-" + f.id, tex: f.tex, hay: PO.searchText(f), boost: norm(f.kulcsszavak) }));
     (PO.MERESEK || []).forEach((M) => items.push({ kind: "Mérés", title: `${M.nr}. ${M.cim}`, sub: "Szóbeli mérés · adatfeldolgozó", href: "#meres-" + M.id, hay: norm(`${M.cim} meres szobeli ${M.eszkozok} ${M.cel}`) }));
     items.push({ kind: "Oldal", title: "Képletkártyák", sub: "Gyakorlás · ismétlő rendszer", href: "#kartyak", hay: norm("kepletkartyak kartya flashcard ismetles leitner memorizalas") });
-    items.push({ kind: "Oldal", title: "Telepítés iPhone-ra / Androidra", sub: "Offline app a főképernyőn", href: "#telepites", hay: norm("telepites iphone ios android fokepernyo offline app pwa safari") });
     (PO.CONSTANTS || []).forEach((c) => items.push({ kind: "Állandó", title: c.nev.replace(/\$[^$]*\$/g, "").trim(), sub: `${c.kerek} · Adatok`, href: "#adatok", tex: c.jel, hay: norm(`${c.nev} ${c.jel} allando ${c.alk}`) }));
     (PO.MATERIALS || []).forEach((M) => items.push({ kind: "Táblázat", title: M.cim, sub: "Anyagjellemzők · Adatok", href: "#adatok", hay: norm(`${M.cim} ${M.sorok.map((r) => r[0]).join(" ")} anyagjellemzo tablazat`) }));
     items.push({ kind: "Eszköz", title: "Mértékegység-átváltó", sub: "Adatok", href: "#adatok", hay: norm("mertekegyseg atvalto atvaltas egyseg konverter") });

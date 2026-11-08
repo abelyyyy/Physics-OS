@@ -57,7 +57,6 @@
       h("div.eyebrow", "PHYSICS OS"),
       h("h1", "A fizika teljes univerzuma"),
       h("p.lead", "Interaktív tanulórendszer a nulláról az emelt szintű fizikaérettségiig: tananyag, kereshető képlettár kalkulátorral, szimulációk, mérések és gyakorlás."),
-      PO.install.hint(),
       h("div.grid.g2",
         cont ? h("a.panel.card-link", { href: cont.href }, h("div.eyebrow", "Folytatás · " + cont.sub), h("div.panel-title", cont.title), h("div.small.muted", "Ott folytathatod, ahol abbahagytad.")) :
           h("div.panel", h("div.eyebrow", "Kezdés"), h("div.panel-title", "Üdv a PHYSICS OS-ben!"), h("div.small.muted", "Kezdd az Alapokkal vagy a Kinematikával, esetleg keress rá bármire a Keresés gombbal (gépen: ", h("kbd", "Ctrl"), " + ", h("kbd", "K"), ").")),
@@ -77,17 +76,6 @@
           h("p.small", `Kidolgozott alfejezet: ${readySubs} / ${allSubs}. Képletek az adatbázisban: ${F.length} (mind a 7 témakörből). Általad ellenőrzött képlet: ${verified} / ${F.length}.`),
           h("div.bar", h("i", { style: { width: Math.round((readySubs / allSubs) * 100) + "%" } })),
           h("p.small.muted", { style: { marginTop: "8px" } }, "A teljes érettségi anyag lefedettségét csak akkor mutatjuk 100%-nak, ha minden követelménypont ki van dolgozva és ellenőrizve. Ez nem hivatalos előrejelzés."))),
-      h("h2", "Fejlesztési állapot"),
-      h("div.panel", h("table.data", h("tbody",
-        [["1. szakasz", "Alkalmazásmag, kereső, mentés, Kinematika teljesen kidolgozva", "kész"],
-         ["2. szakasz", "Képlettár és kalkulátor az összes témakörre, Adatok menü", "kész"],
-         ["3. szakasz", "Labor: 15 szimuláció, közös szimulációs keret", "kész"],
-         ["4. szakasz", "Tananyag: mind a 37 alfejezet", "kész"],
-         ["5. szakasz", "Mérések (20 szóbeli mérés) és adatfeldolgozó", "kész"],
-         ["6. szakasz", "5 hivatalos próbavizsga, képletkártyák ismétlő rendszerrel", "kész"],
-         ["7. szakasz", "iPhone/Android telepítés (PWA), offline mód, mobil finomítás", "kész"]].map(([a, b, c]) => h("tr", h("td.muted", a), h("td", b), h("td", c === "kész" ? h("span.tag.solid", c) : h("span.tag" + (c === "tervezett" ? ".dev" : ""), c))))))),
-      h("h2", "Telepítés"),
-      PO.install.guide(false),
       h("h2", "Mentés"),
       h("div.panel",
         h("p.small", PO.store.available() ? "A haladásod ebben a böngészőben automatikusan mentődik. Másik eszközre a mentés szövegével viheted át." : "Ebben a böngészőben a helyi mentés nem érhető el – a haladás az oldal bezárásakor elveszik. Másold ki a mentést!"),
@@ -290,7 +278,7 @@
       h("h1", "Feladatbank"),
       h("div.row", { style: { gap: "8px", margin: "4px 0 10px" } }, h("span.btn.sm.primary", "Feladatbank"), h("a.btn.sm", { href: "#kartyak" }, "Képletkártyák"), h("a.btn.sm", { href: "#vizsga" }, "Próbavizsgák")),
       h("p.lead", "A számszerű válaszokat a program tényleges számítással, tűréssel ellenőrzi. Két fokozatú tipp és teljes megoldás minden feladathoz."),
-      h("div.callout.small", h("div.callout-t", "Állapot"), `${PO.tasks.length} feladat ${subsWithTasks.length} alfejezetből. Újabb témakörök feladatai a tananyaggal együtt bővülnek; a képletek bemagolásához használd a Képletkártyákat.`),
+      h("div.callout.small", h("div.callout-t", "Állapot"), `${PO.tasks.length} feladat ${subsWithTasks.length} alfejezetből. A képletek bemagolásához használd a Képletkártyákat.`),
       h("div.row", { style: { margin: "14px 0", flexWrap: "wrap" } }, temaSel, lvlSel, onlySel),
       list);
   }
@@ -388,6 +376,5 @@
   }
 
   function kartyak() { return PO.cardsUI.page(); }
-  function telepites() { return PO.install.page(); }
-  PO.pages = { telepites, kartyak, kezdolap, tananyag, tema, kepletter, keplet, labor, sim, gyakorlas, meresek, vizsga, adatok, notFound };
+  PO.pages = { kartyak, kezdolap, tananyag, tema, kepletter, keplet, labor, sim, gyakorlas, meresek, vizsga, adatok, notFound };
 })(typeof globalThis !== "undefined" ? globalThis : this);
