@@ -408,3 +408,11 @@ body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
   .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding-bottom: 2px; }
   .panel, .prose, .topic-section, .callout { min-width: 0; overflow-x: auto; }
 }
+
+/* Feladatbank */
+.bank-cta { margin: 6px 0 4px; border-color: var(--c5); }
+.bank-item .fmeta { flex-wrap: wrap; gap: 6px; align-items: center; }
+.bank-item .fmeta a.tag:hover { border-color: var(--c6); }
+button.panel.card-link[aria-pressed="true"] { border-color: var(--c6); }
+.bank-filters select { max-width: 100%; }
+@media (max-width: 640px) { .bank-filters > select, .bank-filters > span, .bank-filters > span > select { flex: 1 1 100%; width: 100%; } }

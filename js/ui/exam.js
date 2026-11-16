@@ -8,6 +8,9 @@
   /* ------------------------------------------------------------------ */
   /* Tiszta logika (tesztelhető)                                          */
   /* ------------------------------------------------------------------ */
+  /** Elfogadott-e a válasz (a kulcs néha több betűt is elfogad). */
+  const accepted = (q, v) => !!v && (v === q.helyes || (q.elfogad || []).includes(v));
+  const keyText = (q) => q.helyes + ((q.elfogad || []).length ? " (vagy " + q.elfogad.join(", ") + ")" : "");
   const wordCount = (t) => String(t || "").trim().split(/\s+/).filter(Boolean).length;
   const ITEM_KEYS = (E) => [...E.I.map((q) => "I-" + q.nr), "II", ...E.III.map((p) => "III-" + p.nr)];
 
@@ -19,7 +22,7 @@
     const notes = (PO.examNotes && PO.examNotes[E.id]) || { I: {}, III: {} };
     const Ilist = E.I.map((q) => {
       const v = cur.I[q.nr] || null;
-      return { nr: q.nr, valasz: v, helyes: q.helyes, ok: v === q.helyes, pont: v === q.helyes ? q.pont : 0, max: q.pont, tema: (notes.I[q.nr] || [])[0] || null };
+      return { nr: q.nr, valasz: v, helyes: q.helyes, ok: accepted(q, v), pont: accepted(q, v) ? q.pont : 0, max: q.pont, tema: (notes.I[q.nr] || [])[0] || null };
     });
     const pI = Ilist.reduce((a, x) => a + x.pont, 0);
     const words = wordCount(cur.II.text);
@@ -89,11 +92,15 @@
         h("div.panel", h("div.panel-title", "I. Feleletválasztós"), h("div.small.muted", "15 kérdés · 30 pont · automatikus javítás, magyarázattal")),
         h("div.panel", h("div.panel-title", "II. Témakifejtés"), h("div.small.muted", "3 témából 1 · 18 + 5 pont · szószámláló, 100 szó alatt nincs pont a kifejtés módjára")),
         h("div.panel", h("div.panel-title", "III. Összetett feladatok"), h("div.small.muted", "4 feladat · 47 pont · hivatalos megoldás részpontokkal"))),
-      h("h2", "Írásbeli próbavizsgák"),
+      h("a.panel.card-link.bank-cta", { href: "#vizsga-feladatbank" },
+        h("div.eyebrow", "Feladatbank"),
+        h("div.panel-title", "Vizsgafeladatok témakörönként"),
+        h("div.small.muted", `Mind a ${PO.exams.length} feladatsor ${PO.exams.reduce((a, E) => a + E.I.length + E.II.temak.length + E.III.length, 0)} feladata külön gyakorolható, témakör, alfejezet, típus és év szerint szűrve.`)),
+      h("h2", `Írásbeli próbavizsgák (${PO.exams.length})`),
       h("div.grid.g2", PO.exams.map(card)),
       h("h2", "Szóbeli"),
       h("div.panel.card-link.disabled", h("div", "Szóbeli tételhúzás és mérések (A és B feladat)"), h("div.fmeta", { style: { marginTop: "6px" } }, h("span.tag.dev", "Fejlesztés alatt"))),
-      h("p.small.muted", { style: { marginTop: "18px" } }, "Forrás: Oktatási Hivatal, emelt szintű fizika írásbeli feladatlapok és javítási-értékelési útmutatók (2024–2026). A feladatok és megoldások az eredeti dokumentumokból kivágott képek. A feleletválasztós kérdések magyarázatai saját kiegészítések; a helyes válasz minden esetben a hivatalos kulcs."));
+      h("p.small.muted", { style: { marginTop: "18px" } }, "Forrás: Oktatási Hivatal, emelt szintű fizika írásbeli feladatlapok és javítási-értékelési útmutatók (2020–2026). A feladatok és megoldások az eredeti dokumentumokból kivágott képek. A feleletválasztós kérdések magyarázatai saját kiegészítések; a helyes válasz minden esetben a hivatalos kulcs."));
   }
 
   /* ------------------------------------------------------------------ */
@@ -248,8 +255,8 @@
       });
       const check = c.mode === "gyakorlo" ? h("button.btn.sm", { type: "button", onclick: () => {
         const v = cur().I[q.nr];
-        fb.className = "feedback " + (v === q.helyes ? "ok" : "bad");
-        fb.innerHTML = (v ? (v === q.helyes ? "<strong>Helyes!</strong> " : `<strong>Nem jó.</strong> A helyes válasz: <strong>${q.helyes}</strong>. `) : `A helyes válasz: <strong>${q.helyes}</strong>. `) + (note ? PO.tex.html(note[1]) : "");
+        fb.className = "feedback " + (accepted(q, v) ? "ok" : "bad");
+        fb.innerHTML = (v ? (accepted(q, v) ? "<strong>Helyes!</strong> " : `<strong>Nem jó.</strong> A helyes válasz: <strong>${keyText(q)}</strong>. `) : `A helyes válasz: <strong>${keyText(q)}</strong>. `) + (note ? PO.tex.html(note[1]) : "");
         save((x) => { x.checked[q.nr] = true; });
       } }, "Ellenőrzés") : null;
       return h("div",
@@ -362,9 +369,9 @@
       const note = notes.I[q.nr];
       return h("details.solution" + (x.ok ? "" : ".wrong"),
         h("summary", h("span", { style: { fontFamily: "var(--mono)", width: "28px", display: "inline-block" } }, q.nr + "."),
-          h("span", x.ok ? "✓ Helyes" : x.valasz ? `✗ Te: ${x.valasz} · helyes: ${q.helyes}` : `– Nincs válasz · helyes: ${q.helyes}`),
+          h("span", x.ok ? "✓ Helyes" : x.valasz ? `✗ Te: ${x.valasz} · helyes: ${keyText(q)}` : `– Nincs válasz · helyes: ${keyText(q)}`),
           h("span.spacer"), note ? h("span.tag", note[0]) : null),
-        h("div", paper(q.kepek, q.szoveg), note ? h("div.callout.small", { html: `<div class="callout-t">Magyarázat · helyes válasz: ${q.helyes}</div>` + PO.tex.html(note[1]) }) : h("p.small.muted", `Helyes válasz: ${q.helyes}`)));
+        h("div", paper(q.kepek, q.szoveg), note ? h("div.callout.small", { html: `<div class="callout-t">Magyarázat · helyes válasz: ${keyText(q)}</div>` + PO.tex.html(note[1]) }) : h("p.small.muted", `Helyes válasz: ${keyText(q)}`)));
     }));
     const retryBox = h("div");
     const retryBtn = wrong.length ? h("button.btn.sm", { type: "button", onclick: () => { retryBox.innerHTML = ""; retryBox.append(retry(wrong.map((w) => E.I.find((q) => q.nr === w.nr)))); retryBtn.remove(); } }, `Hibás kérdések újragyakorlása (${wrong.length})`) : null;
@@ -427,15 +434,146 @@
       (q.betuk.length ? q.betuk : ["A", "B", "C", "D"]).forEach((L) => seg.append(h("button", { type: "button", onclick: (e) => {
         [...seg.children].forEach((c) => c.setAttribute("aria-pressed", "false")); e.currentTarget.setAttribute("aria-pressed", "true");
         const note = PO.examNotes && PO.examNotes[q._exam] && PO.examNotes[q._exam].I[q.nr];
-        fb.className = "feedback " + (L === q.helyes ? "ok" : "bad");
-        fb.innerHTML = L === q.helyes ? "<strong>Most már helyes!</strong> " + (note ? PO.tex.html(note[1]) : "") : "Még nem jó – gondold át újra.";
+        fb.className = "feedback " + (accepted(q, L) ? "ok" : "bad");
+        fb.innerHTML = accepted(q, L) ? "<strong>Most már helyes!</strong> " + (note ? PO.tex.html(note[1]) : "") : "Még nem jó – gondold át újra.";
       } }, L)));
       box.append(h("div.panel", h("div.small.muted", `${q.nr}. kérdés`), paper(q.kepek, q.szoveg), h("div.row", { style: { marginTop: "10px" } }, seg), fb));
     });
     return box;
   }
 
-  PO.examUI = { list, run, score, wordCount, newAttempt };
+  /* ------------------------------------------------------------------ */
+  /* Feladatbank: a hivatalos vizsgák feladatai külön, témakör szerint   */
+  /* ------------------------------------------------------------------ */
+  const PART_NAMES = { I: "Feleletválasztós", II: "Témakifejtés", III: "Összetett feladat" };
+  const subName = (sid) => { for (const t of PO.topics || []) for (const [id, nev] of t.sub || []) if (id === sid) return nev; return null; };
+
+  /** Az összes vizsgafeladat egy listában, címkékkel (tesztelhető). */
+  function bankItems() {
+    const out = [];
+    for (const E of PO.exams || []) {
+      const N = (PO.examNotes && PO.examNotes[E.id]) || { I: {}, II: {}, III: {}, S: {} };
+      const S = N.S || {};
+      const ev = +E.id.slice(0, 4), idoszak = E.id.slice(4);
+      const base = (resz, nr) => ({ key: `${E.id}:${resz}:${nr}`, exam: E.id, cim: E.cim, ev, idoszak, resz, nr });
+      E.I.forEach((q) => out.push(Object.assign(base("I", q.nr), { tema: (N.I[q.nr] || [])[0] || null, al: (S.I || {})[q.nr] || null, pont: q.pont, q })));
+      E.II.temak.forEach((t) => out.push(Object.assign(base("II", t.nr), { tema: (N.II || {})[t.nr] || null, al: (S.II || {})[t.nr] || null, pont: 23, t, E })));
+      E.III.forEach((p) => out.push(Object.assign(base("III", p.nr), { tema: (N.III || {})[p.nr] || null, al: (S.III || {})[p.nr] || null, pont: p.pont, p })));
+    }
+    return out;
+  }
+
+  /** Szűrés (tesztelhető). f: { tema, al, resz, ev, idoszak, allapot }, st: store.bank */
+  function bankFilter(items, f, st = {}) {
+    return items.filter((x) =>
+      (!f.tema || x.tema === f.tema) && (!f.al || x.al === f.al) && (!f.resz || x.resz === f.resz) &&
+      (!f.ev || x.ev === +f.ev) && (!f.idoszak || x.idoszak === f.idoszak) &&
+      (!f.allapot || (f.allapot === "uj" ? !st[x.key] : f.allapot === "hibas" ? st[x.key] === "bad" || st[x.key] === "reszben" : st[x.key] === "ok")));
+  }
+
+  const bankState = { f: { tema: "", al: "", resz: "", ev: "", idoszak: "", allapot: "" }, shown: 12, order: null };
+  const bankGet = () => (PO.store.get().bank || {});
+  const bankSet = (key, v) => PO.store.update((s) => { s.bank = s.bank || {}; s.bank[key] = v; });
+
+  function bankCard(x) {
+    const st = bankGet()[x.key];
+    const badge = h("span.tag" + (st === "ok" ? ".solid" : ""), st === "ok" ? "Megoldva" : st === "reszben" ? "Részben" : st === "bad" ? "Hibás" : "Új");
+    const setBadge = (v) => { badge.className = "tag" + (v === "ok" ? " solid" : ""); badge.textContent = v === "ok" ? "Megoldva" : v === "reszben" ? "Részben" : "Hibás"; };
+    const head = h("div.fmeta",
+      h("span.tag", `${x.cim} · ${x.resz}/${x.nr}`),
+      x.tema ? h("span.tag", x.tema) : null,
+      x.al && subName(x.al) ? h("a.tag", { href: "#tema-" + x.al, title: "Tananyag megnyitása", style: { textDecoration: "none" } }, subName(x.al) + " →") : null,
+      h("span.spacer"), h("span.small.muted", x.pont + " pont"), badge);
+    let body;
+    if (x.resz === "I") {
+      const q = x.q, note = PO.examNotes && PO.examNotes[x.exam] && PO.examNotes[x.exam].I[q.nr];
+      const fb = h("div");
+      const seg = h("div.seg.answer-seg", { role: "radiogroup", "aria-label": "Válasz" });
+      (q.betuk.length ? q.betuk : ["A", "B", "C", "D"]).forEach((L) => seg.append(h("button", { type: "button", "aria-pressed": "false", onclick: (e) => {
+        [...seg.children].forEach((c) => c.setAttribute("aria-pressed", "false")); e.currentTarget.setAttribute("aria-pressed", "true");
+        const ok = accepted(q, L);
+        fb.className = "feedback " + (ok ? "ok" : "bad");
+        fb.innerHTML = (ok ? "<strong>Helyes!</strong> " : `<strong>Nem jó.</strong> A helyes válasz: <strong>${keyText(q)}</strong>. `) + (note && note[1] ? PO.tex.html(note[1]) : "");
+        const prev = bankGet()[x.key];
+        const v = ok ? (prev === "bad" ? "reszben" : "ok") : "bad";
+        bankSet(x.key, v); setBadge(v);
+      } }, L)));
+      body = [paper(q.kepek, q.szoveg), h("div.row", { style: { marginTop: "10px" } }, h("span.small.muted", "Válaszod:"), seg), fb];
+    } else {
+      const rate = h("div.row", { style: { marginTop: "10px", gap: "6px", flexWrap: "wrap" } }, h("span.small.muted", "Hogy ment?"),
+        ...[["ok", "Megoldottam"], ["reszben", "Részben"], ["bad", "Nem ment"]].map(([v, l]) => h("button.btn.sm" + (v === "ok" ? "" : ".ghost"), { type: "button", onclick: () => { bankSet(x.key, v); setBadge(v); } }, l)));
+      if (x.resz === "II") {
+        body = [paper(x.t.kepek, x.t.szoveg),
+          h("details.solution", h("summary", "Hivatalos útmutató és pontozás"), h("div", paper(x.t.utmutato || [], "Hivatalos útmutató"), x.E.II.kifejtes && x.E.II.kifejtes.length ? paper(x.E.II.kifejtes, "A kifejtés módjának értékelése") : null)),
+          rate];
+      } else {
+        const parts = x.p.reszek.length ? x.p.reszek.map((r) => `${r.betu}) ${r.pont} p`).join(" · ") : "";
+        body = [paper(x.p.kepek, x.p.szoveg), parts ? h("div.small.muted", { style: { marginTop: "6px" } }, "Részpontok: " + parts) : null,
+          h("details.solution", h("summary", "Hivatalos megoldás és pontozás"), h("div", paper(x.p.megoldas || [], "Hivatalos megoldás"))), rate];
+      }
+    }
+    return h("div.panel.bank-item", head, h("div", { style: { height: "10px" } }), ...body);
+  }
+
+  function bank() {
+    const items = bankItems();
+    const f = bankState.f;
+    const opt = (v, l) => h("option", { value: v }, l);
+    const sel = (key, label, options, onChange) => {
+      const s = h("select", { "aria-label": label }, options);
+      s.value = f[key];
+      s.addEventListener("change", () => { f[key] = s.value; if (onChange) onChange(); bankState.shown = 12; bankState.order = null; paint(); });
+      return s;
+    };
+    const count = (pred) => items.filter(pred).length;
+    const temaSel = sel("tema", "Főtéma", [opt("", `Minden témakör (${items.length})`), ...(PO.EXAM_TOPICS || []).map((t) => opt(t, `${t} (${count((x) => x.tema === t)})`))], () => { f.al = ""; alSlot.replaceChildren(alSel()); });
+    const alSel = () => {
+      const subs = [];
+      for (const t of PO.topics || []) for (const [id, nev] of t.sub || []) { const n = count((x) => x.al === id && (!f.tema || x.tema === f.tema)); if (n) subs.push(opt(id, `${nev} (${n})`)); }
+      return sel("al", "Alfejezet", [opt("", "Minden alfejezet"), ...subs]);
+    };
+    const alSlot = h("span", alSel());
+    const reszSel = sel("resz", "Feladattípus", [opt("", "Minden feladattípus"), opt("I", "I. Feleletválasztós"), opt("II", "II. Témakifejtés"), opt("III", "III. Összetett feladat")]);
+    const years = [...new Set(items.map((x) => x.ev))].sort((a, b) => b - a);
+    const evSel = sel("ev", "Év", [opt("", "Minden év"), ...years.map((y) => opt(String(y), String(y)))]);
+    const idSel = sel("idoszak", "Időszak", [opt("", "Május és október"), opt("maj", "Május"), opt("okt", "Október")]);
+    const allSel = sel("allapot", "Állapot", [opt("", "Minden állapot"), opt("uj", "Még nem próbált"), opt("hibas", "Hibás / részben – újra"), opt("ok", "Megoldott")]);
+    const shuffle = h("button.btn.sm.ghost", { type: "button", onclick: () => { const r = bankFilter(items, f, bankGet()); bankState.order = r.map((x) => x.key).sort(() => Math.random() - 0.5); bankState.shown = 12; paint(); } }, "Véletlen sorrend");
+    const reset = h("button.btn.sm.ghost", { type: "button", onclick: () => { Object.keys(f).forEach((k) => (f[k] = "")); PO.router.go("vizsga-feladatbank", true); } }, "Szűrők törlése");
+    const summary = h("div.small.muted");
+    const stats = h("div.grid.g3", { style: { margin: "12px 0" } });
+    const listBox = h("div.grid", { style: { gap: "14px" } });
+    const more = h("div", { style: { margin: "14px 0" } });
+
+    function paint() {
+      const st = bankGet();
+      let res = bankFilter(items, f, st);
+      if (bankState.order) { const pos = new Map(bankState.order.map((k, i) => [k, i])); res = res.slice().sort((a, b) => (pos.get(a.key) ?? 1e9) - (pos.get(b.key) ?? 1e9)); }
+      const done = res.filter((x) => st[x.key] === "ok").length, bad = res.filter((x) => st[x.key] === "bad" || st[x.key] === "reszben").length;
+      summary.textContent = `${res.length} feladat a szűrésnek megfelelően · ${done} megoldva · ${bad} hibás vagy részben`;
+      stats.replaceChildren(...(PO.EXAM_TOPICS || []).map((t) => {
+        const all = items.filter((x) => x.tema === t), ok = all.filter((x) => st[x.key] === "ok").length;
+        return h("button.panel.card-link", { type: "button", style: { textAlign: "left", cursor: "pointer" }, "aria-pressed": String(f.tema === t), onclick: () => { f.tema = f.tema === t ? "" : t; f.al = ""; bankState.shown = 12; bankState.order = null; PO.router.go("vizsga-feladatbank", true); } },
+          h("div.panel-title", t), h("div.small.muted", `${all.length} feladat · ${ok} megoldva`), h("div.bar", h("i", { style: { width: pct(ok, all.length) + "%" } })));
+      }));
+      listBox.replaceChildren(...res.slice(0, bankState.shown).map(bankCard));
+      if (!res.length) listBox.append(h("div.panel.small.muted", "Nincs a szűrésnek megfelelő feladat."));
+      more.replaceChildren(res.length > bankState.shown ? h("button.btn", { type: "button", onclick: () => { bankState.shown += 12; paint(); } }, `További feladatok (${res.length - bankState.shown})`) : null);
+    }
+    paint();
+    return h("div.page",
+      h("a.small.muted", { href: "#vizsga", style: { textDecoration: "none" } }, "← Érettségi szimulátor"),
+      h("div.eyebrow", "Vizsga · Feladatbank"),
+      h("h1", "Vizsgafeladatok témakörönként"),
+      h("p.lead", `A ${(PO.exams || []).length} hivatalos írásbeli feladatsor összes feladata külön, témakör, alfejezet, típus és év szerint szűrve. A feleletválasztós kérdéseket a program ellenőrzi magyarázattal; a többinél a hivatalos megoldás alapján jelölöd, hogyan ment.`),
+      stats,
+      h("div.row.bank-filters", { style: { flexWrap: "wrap", gap: "8px", margin: "8px 0" } }, temaSel, alSlot, reszSel, evSel, idSel, allSel),
+      h("div.row", { style: { flexWrap: "wrap", gap: "8px", marginBottom: "6px" } }, summary, h("span.spacer"), shuffle, reset),
+      listBox, more,
+      h("p.small.muted", { style: { marginTop: "18px" } }, "Forrás: Oktatási Hivatal, emelt szintű fizika írásbeli feladatlapok és javítási-értékelési útmutatók (2020–2026). A témakör-besorolás és a magyarázatok saját kiegészítések."));
+  }
+
+  PO.examUI = { list, run, score, wordCount, newAttempt, bank, bankItems, bankFilter, accepted };
   // a retry-hez szükséges vizsga-azonosító
   (PO.exams || []).forEach((E) => E.I.forEach((q) => (q._exam = E.id)));
   if (typeof module !== "undefined") module.exports = PO.examUI;

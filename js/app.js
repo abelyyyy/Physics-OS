@@ -39,7 +39,7 @@
     const hash = decodeURIComponent(location.hash.replace(/^#/, "")) || "kezdolap";
     const m = hash.match(/^(tema|keplet|sim|vizsga|meres)-(.+)$/);
     let result;
-    if (m) result = m[1] === "vizsga" ? PO.examUI.run(m[2]) : m[1] === "meres" ? PO.meresUI.meres(m[2]) : PO.pages[m[1]](m[2]);
+    if (m) result = m[1] === "vizsga" ? (m[2] === "feladatbank" ? PO.examUI.bank() : PO.examUI.run(m[2])) : m[1] === "meres" ? PO.meresUI.meres(m[2]) : PO.pages[m[1]](m[2]);
     else result = (PO.pages[hash] || PO.pages.notFound)();
     if (current && current.destroy) current.destroy();
     const el = result instanceof Node ? result : result.el;

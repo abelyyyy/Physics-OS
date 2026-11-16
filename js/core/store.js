@@ -14,7 +14,8 @@
     notes: {},             // témakör-id -> szöveg
     exams: {},
     meresek: {},           // mérés-id -> saját mért adatok
-    cards: {},             // képlet-id -> { box, due } – képletkártyák (Leitner)             // vizsga-id -> { cur: folyamatban lévő próbálkozás, history: [...] }
+    cards: {},             // képlet-id -> { box, due } – képletkártyák (Leitner)
+    bank: {},              // "vizsga:rész:sorszám" -> "ok" | "reszben" | "bad" – vizsgafeladat-bank
   });
 
   let state = blank();
